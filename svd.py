@@ -4,11 +4,15 @@ import numpy as np
 
 def getDim(Sigma, threshold):
 	"""Reduce the dimention of Sigma according to the treshold of Energy."""
-	if not((threshold>=0.0) and (threshold<=1.0)):
+	if not((threshold>0.0) and (threshold<=1.0)):
 		print "\tError: Threshold is illegal.\n"
 		return 0
-	
-	sumEnergy = 0;
+
+	#aim at imprecision of float type in python
+	if threshold==1.0:
+		return len(Sigma)
+
+	sumEnergy = 0.0;
 	for i in range(len(Sigma)):
 		sumEnergy += Sigma[i]**2
 
@@ -63,10 +67,12 @@ def levelMat2File(levelMatrix, fileName, firstColAsCon=True, activeStr='sigmoid'
 	
 	f.close()
 
-def singularValueDec(sourceFile, destinationFile, threshold):
+def singularValueDec(sourceFile, destinationFile, threshold=0.99, k=0):
 	"""Make singular value decompostion of all matrix in sourcefile,
 	and write new marix of parameters to destinationFile in specified
-	format.
+	format. 
+	If k is specified, value of reduced dimention is k. Otherwise, reduced
+	dimention is determined by threshold.
 	File format of each level:
 	<affinetranform> 2 3
 	 [
@@ -98,7 +104,12 @@ def singularValueDec(sourceFile, destinationFile, threshold):
 				
 				#process matrix
 				U, Sigma, Vt = np.linalg.svd(matrix_A)
-				reducedDim = getDim(Sigma, threshold)
+				print Sigma
+				if k:
+					reducedDim = k;
+				else:
+					reducedDim = getDim(Sigma, threshold)
+				
 				if reducedDim:
 					U,Sigma,Vt = dimReduce(U, Sigma, Vt, reducedDim)
 				
@@ -106,7 +117,7 @@ def singularValueDec(sourceFile, destinationFile, threshold):
 				levelMat2File(np.dot(np.diag(Sigma),Vt),destinationFile)
 				levelMat2File(U,destinationFile,False,l[0])
 	
-				print 'matrix_A.shapt: ',matrix_A.shape
+				print 'matrix_A.shape: ',matrix_A.shape
 				print 'reduced dim: ',reducedDim
 				continue
 			if inmatrix :
