@@ -63,7 +63,7 @@ def levelMat2File(levelMatrix, fileName, firstColAsCon=True, activeStr='sigmoid'
 	
 	f.close()
 
-def singularValueDec(sourceFile, destinationFile):
+def singularValueDec(sourceFile, destinationFile, threshold):
 	"""Make singular value decompostion of all matrix in sourcefile,
 	and write new marix of parameters to destinationFile in specified
 	format.
@@ -98,7 +98,6 @@ def singularValueDec(sourceFile, destinationFile):
 				
 				#process matrix
 				U, Sigma, Vt = np.linalg.svd(matrix_A)
-				threshold = 0.9
 				reducedDim = getDim(Sigma, threshold)
 				if reducedDim:
 					U,Sigma,Vt = dimReduce(U, Sigma, Vt, reducedDim)
@@ -115,7 +114,7 @@ def singularValueDec(sourceFile, destinationFile):
 
 
 if __name__ == '__main__':
-	singularValueDec('mydata','mydata_doubleLevel.data')
+	singularValueDec('mydata','mydata_doubleLevel.data',0.99)
 
 
 
