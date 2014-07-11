@@ -104,7 +104,7 @@ def singularValueDec(sourceFile, destinationFile, threshold=0.99, k=0):
 				
 				#process matrix
 				U, Sigma, Vt = np.linalg.svd(matrix_A)
-				print Sigma
+				
 				if k:
 					reducedDim = k;
 				else:
