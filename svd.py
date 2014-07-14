@@ -35,7 +35,7 @@ def dimReduce(U, Sigma, Vt, dim):
 
 def levelMat2File(levelMatrix, fileName, firstColAsCon=True, activeStr='sigmoid'):
 	"""Append parameter matrix of one level to a file.
-	firsColAsCon is True means that get the first column 
+	firstColAsCon is True means that get the first column 
 	of levelMatrix as constant vector b. Else, vector b is 0.
 	Value of activeStr is 'sigmoid' or 'softmax.'
 	"""
@@ -97,10 +97,13 @@ def singularValueDec(sourceFile, destinationFile, threshold=0.99, k=0):
 				continue
 			elif l[0]=='sigmoid' or l[0]=='softmax':
 				inmatrix = False
+
+                                # process constant vector b
 				for i in range(len(matrix_A)-1):
 					matrix_A[i].insert(0,matrix_A[len(matrix_A)-1][i])
 				del matrix_A[len(matrix_A)-1]
-				matrix_A = np.array(matrix_A)
+				
+                                matrix_A = np.array(matrix_A)
 				
 				#process matrix
 				U, Sigma, Vt = np.linalg.svd(matrix_A)
