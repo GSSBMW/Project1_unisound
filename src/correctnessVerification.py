@@ -35,6 +35,7 @@ def correctnessVerification(levelMatFileName, inputMatFileName, outputFileName):
                 break
    	    if inmatrix :
                    levelMat.append([float(member) for member in l])
+
     #read input matrix form inputMatFile, named inputMat
     inputMat = []
     while True:
@@ -46,25 +47,30 @@ def correctnessVerification(levelMatFileName, inputMatFileName, outputFileName):
         else:
             break
     inputMat = np.array(inputMat)
+    
+    #origial output matrix
     outputMat = np.dot(levelMat, inputMat.T)
 
-    #change the threshold
     U, Sigma, Vt = np.linalg.svd(levelMat)
-    reducedDim = svd.getDim(Sigma, 1.0)
-    if reducedDim:
-        U, Sigma, Vt = svd.dimReduce(U, Sigma, Vt, reducedDim)
-        levelMat_reduce = np.dot(U, np.dot(np.diag(Sigma),Vt) )
-        outputMat_reduce = np.dot(levelMat_reduce, inputMat.T) 
-    else:
-        print 'There is an error!\n'
-        return
+    #change the threshold
+    for k in range(1,101,1):
+        print k
+        reducedDim = svd.getDim(Sigma, k/100.0)
+        if reducedDim:
+            U_r, Sigma_r, Vt_r = svd.dimReduce(U, Sigma, Vt, reducedDim)
+            levelMat_reduce = np.dot(U_r, np.dot(np.diag(Sigma_r),Vt_r) )
+            outputMat_reduce = np.dot(levelMat_reduce, inputMat.T) 
+        else:
+            print 'There is an error!\n'
+            return
     
-    distanceVector = np.sqrt(np.sum(np.square(outputMat_reduce-outputMat), axis=0))
-    distance = np.sum(distanceVector)/distanceVector.shape[0]
-    print 'Distance vector: ',distanceVector
-    print 'Distance:',distance
-
+        distanceVector = np.sqrt(np.sum(np.square(outputMat_reduce-outputMat), axis=0))
+        distance = np.sum(distanceVector)/distanceVector.shape[0]
+        outputFile.write('Distance vector: \n%s\n'%distanceVector)
+        outputFile.write('Distance: %.8f\n\n'%distance)
 
 if __name__=='__main__':
-    correctnessVarification('mydata_level',\
-            'inputVector_2x6.data','testDistance.data')
+    #correctnessVerification('mydata_level',\
+    #        'inputVector_2x6.data','testDistance.data')
+    correctnessVerification('../data/dnn_l2.data',\
+            '../data/inputVector_100x512.data','../data/Distance.data')
