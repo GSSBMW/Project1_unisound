@@ -3,16 +3,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import svd
 
-def correctnessVerification(levelMatFileName, inputMatFileName, outputFileName):
-    """Show the variation trend of distance between original 
-    output and output after dimention reduction, with the 
-    change of k. And write this trend in to file.
-    """
-    levelMatFile = open(levelMatFileName,'r')
-    inputMatFile = open(inputMatFileName,'r')
-    outputFile = open(outputFileName,'w')
-    
-    #read level matrix from levelMatFile, named levelMat
+def readLevelMat(levelMatFile):
+    """Read level matrix from levelMatFile."""
     while True:
    	l = levelMatFile.readline()
 	if len(l)==0 :
@@ -26,18 +18,18 @@ def correctnessVerification(levelMatFileName, inputMatFileName, outputFileName):
    		continue
    	    elif l[0]=='sigmoid' or l[0]=='softmax':
    		inmatrix = False
-   
                 # process constant vector b
    	        for i in range(len(levelMat)-1):
    		    levelMat[i].insert(0,levelMat[len(levelMat)-1][i])
    		del levelMat[len(levelMat)-1]
                 levelMat = np.array(levelMat)
-   				
                 break
    	    if inmatrix :
                    levelMat.append([float(member) for member in l])
+    return levelMat
 
-    #read input matrix form inputMatFile, named inputMat
+def readInputMat(inputMatFile):
+    """Read input matrix form inputMatFile."""
     inputMat = []
     while True:
         l = inputMatFile.readline().translate(None, '\n[]').strip()
@@ -47,7 +39,19 @@ def correctnessVerification(levelMatFileName, inputMatFileName, outputFileName):
             inputMat.append([float(member) for member in l])
         else:
             break
-    inputMat = np.array(inputMat)
+    return np.array(inputMat)
+
+def correctnessVerification(levelMatFileName, inputMatFileName, outputFileName):
+    """Show the variation trend of distance between original 
+    output and output after dimention reduction, with the 
+    change of k. And write this trend in to file.
+    """
+    levelMatFile = open(levelMatFileName,'r')
+    inputMatFile = open(inputMatFileName,'r')
+    outputFile = open(outputFileName,'w')
+ 
+    levelMat = readLevelMat(levelMatFile)
+    inputMat = readInputMat(inputMatFile)
     
     #origial output matrix
     outputMat = np.dot(levelMat, inputMat.T)
@@ -73,6 +77,7 @@ def correctnessVerification(levelMatFileName, inputMatFileName, outputFileName):
         outputFile.write('Distance: %.8f\n\n'%distance)
         k_v.append(k)
         distance_v.append(distance)
+    #visualize output data
     plt.plot(k_v, distance_v, 'r', linewidth=2)
     plt.axis([0,100,0,300])
     plt.title('Distance between original and reduced output\nalong with change of k');
