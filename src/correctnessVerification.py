@@ -1,5 +1,6 @@
 
 import numpy as np
+import matplotlib.pyplot as plt
 import svd
 
 def correctnessVerification(levelMatFileName, inputMatFileName, outputFileName):
@@ -53,6 +54,8 @@ def correctnessVerification(levelMatFileName, inputMatFileName, outputFileName):
 
     U, Sigma, Vt = np.linalg.svd(levelMat)
     #change the threshold
+    k_v = []
+    distance_v = []
     for k in range(1,101,1):
         print k
         reducedDim = svd.getDim(Sigma, k/100.0)
@@ -68,9 +71,16 @@ def correctnessVerification(levelMatFileName, inputMatFileName, outputFileName):
         distance = np.sum(distanceVector)/distanceVector.shape[0]
         outputFile.write('Distance vector: \n%s\n'%distanceVector)
         outputFile.write('Distance: %.8f\n\n'%distance)
+        k_v.append(k)
+        distance_v.append(distance)
+    plt.plot(k_v, distance_v, 'r', linewidth=2)
+    plt.axis([0,100,0,300])
+    plt.title('Distance between original and reduced output\nalong with change of k');
+    plt.xlabel('k/%');plt.ylabel('distance');plt.grid(True)
+    plt.show()
 
 if __name__=='__main__':
     #correctnessVerification('mydata_level',\
     #        'inputVector_2x6.data','testDistance.data')
-    correctnessVerification('../data/dnn_l2.data',\
+    correctnessVerification('../data/dnn_l3.data',\
             '../data/inputVector_100x512.data','../data/Distance.data')
